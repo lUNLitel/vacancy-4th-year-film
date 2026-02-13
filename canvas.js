@@ -230,6 +230,7 @@ window.addEventListener('resize', fitToScreen);
 viewport.addEventListener('mousedown', (e) => {
   if (e.button !== 0) return;
   isMomentumActive = false;
+  isAnimating = false;
   isDragging = true;
   dragStartX = e.clientX;
   dragStartY = e.clientY;
@@ -258,6 +259,12 @@ window.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mouseup', () => {
+  if (isDragging) startMomentum();
+  isDragging = false;
+  viewport.classList.remove('dragging');
+});
+
+viewport.addEventListener('mouseleave', () => {
   if (isDragging) startMomentum();
   isDragging = false;
   viewport.classList.remove('dragging');
@@ -294,6 +301,8 @@ let zoomAnchorY = null;
 let zoomAnchorTimeout = null;
 
 function animateZoom() {
+  if (!isAnimating) return;
+  
   const ds = targetScale - scale;
   const dx = targetPanX - panX;
   const dy = targetPanY - panY;
@@ -315,7 +324,11 @@ function animateZoom() {
 }
 
 viewport.addEventListener('wheel', (e) => {
+  // Prioritize panning: ignore zoom if currently dragging
+  if (isDragging) return;
+  
   e.preventDefault();
+  isMomentumActive = false;
   const zoomFactor = 1.08;
   const direction = e.deltaY < 0 ? 1 : -1;
   const newScale = Math.max(0.05, Math.min(5, targetScale * Math.pow(zoomFactor, direction)));
