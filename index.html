@@ -3,13 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vacancy: Milestone One</title>
+<title>Vacancy</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="viewport">
-  <div id="canvas-world"></div>
+  <div id="canvas-world">
+    <div class="landing-container">
+      <h1 class="landing-title">Vacancy</h1>
+      <div id="pages-grid"></div>
+    </div>
+  </div>
 </div>
-<script src="canvas.js"></script>
+<script>
+fetch('pages.json')
+  .then(r => r.json())
+  .then(pages => {
+    const grid = document.getElementById('pages-grid');
+    pages.forEach(page => {
+      const a = document.createElement('a');
+      a.className = 'page-card';
+      a.href = 'viewer.html?canvas=' + encodeURIComponent(page.canvas);
+      a.textContent = page.title;
+      grid.appendChild(a);
+    });
+  })
+  .then(() => initLanding())
+  .catch(err => {
+    document.getElementById('pages-grid').innerHTML =
+      '<p style="color:#8C7D6A;">Could not load pages list.</p>';
+    console.error(err);
+    initLanding();
+  });
+
+function initLanding() {
+  const viewport = document.getElementById('viewport');
+  const world = document.getElementById('canvas-world');
+  const container = document.querySelector('.landing-container');
+  const DOT_BASE_SPACING = 24;
+
+  let scale = 1;
+  let panX = 0;
+  let panY = 0;
+  let targetScale = 1;
+  let targetPanX = 0;
+  let targetPanY = 0;
+
+  let isDragging = false;
+  let dragStartX, dragStartY, panStartX, panStartY;
+  let velocityX = 0, velocityY = 0;
+  let lastMoveTime = 0;
+  let isMomentumActive = false;
+  const FRICTION = 0.92;
+  const MIN_VELOCITY = 0.5;
+
+  let isAnimating = false;
+  const ZOOM_LERP = 0.15;
+  const ZOOM_EPSILON = 0.001;
+  let zoomAnchorX = null, zoomAnchorY = null, zoomAnchorTimeout = null;
+
+  function applyTransform() {
+    world.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
+    const spacing = DOT_BASE_SPACING * scale;
+    if (spacing > 6) {
+      viewport.style.backgroundImage = 'radial-gradient(circle, #D4C9B8 1px, transparent 1px)';
+      viewport.style.backgroundSize = spacing + 'px ' + spacing + 'px';
+      viewport.style.backgroundPosition = (panX % spacing) + 'px ' + (panY % spacing) + 'px';
+    } else {
+      viewport.style.backgroundImage = 'none';
+    }
+  }
+
+  function centerContent() {
+    const rect = container.getBoundingClientRect();
+    const cw = container.offsetWidth;
+    const ch = container.offsetHeight;
+    scale = 1;
+    panX = (viewport.clientWidth - cw) / 2;
+    panY = (viewport.clientHeight - ch) / 2;
+    targetScale = scale;
+    targetPanX = panX;
+    targetPanY = panY;
+    applyTransform();
+  }
+
+  centerContent();
+  window.addEventListener('resize', centerContent);
+
+  // Mouse pan
+  viewport.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.page-card')) return;
+    if (e.button !== 0) return;
+    isMomentumActive = false;
+    isAnimating = false;
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    panStartX = panX;
+    panStartY = panY;
+    lastMoveTime = performance.now();
+    velocityX = 0;
+    velocityY = 0;
+    viewport.classList.add('dragging');
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var now = performance.now();
+    var dt = now - lastMoveTime || 16;
+    var newPanX = panStartX + (e.clientX - dragStartX);
+    var newPanY = panStartY + (e.clientY - dragStartY);
+    velocityX = (newPanX - panX) / dt * 16;
+    velocityY = (newPanY - panY) / dt * 16;
+    lastMoveTime = now;
+    panX = newPanX;
+    panY = newPanY;
+    targetPanX = panX;
+    targetPanY = panY;
+    applyTransform();
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (isDragging) startMomentum();
+    isDragging = false;
+    viewport.classList.remove('dragging');
+  });
+
+  viewport.addEventListener('mouseleave', function() {
+    if (isDragging) startMomentum();
+    isDragging = false;
+    viewport.classList.remove('dragging');
+  });
+
+  function startMomentum() {
+    if (Math.abs(velocityX) < MIN_VELOCITY && Math.abs(velocityY) < MIN_VELOCITY) return;
+    isMomentumActive = true;
+    requestAnimationFrame(animateMomentum);
+  }
+
+  function animateMomentum() {
+    if (!isMomentumActive) return;
+    velocityX *= FRICTION;
+    velocityY *= FRICTION;
+    if (Math.abs(velocityX) < MIN_VELOCITY && Math.abs(velocityY) < MIN_VELOCITY) {
+      isMomentumActive = false;
+      return;
+    }
+    panX += velocityX;
+    panY += velocityY;
+    targetPanX = panX;
+    targetPanY = panY;
+    applyTransform();
+    requestAnimationFrame(animateMomentum);
+  }
+
+  // Smooth scroll zoom
+  function animateZoom() {
+    if (!isAnimating) return;
+    var ds = targetScale - scale;
+    var dx = targetPanX - panX;
+    var dy = targetPanY - panY;
+    if (Math.abs(ds) < ZOOM_EPSILON && Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+      scale = targetScale;
+      panX = targetPanX;
+      panY = targetPanY;
+      applyTransform();
+      isAnimating = false;
+      return;
+    }
+    scale += ds * ZOOM_LERP;
+    panX += dx * ZOOM_LERP;
+    panY += dy * ZOOM_LERP;
+    applyTransform();
+    requestAnimationFrame(animateZoom);
+  }
+
+  viewport.addEventListener('wheel', function(e) {
+    if (isDragging) return;
+    e.preventDefault();
+    isMomentumActive = false;
+    var zoomFactor = 1.08;
+    var direction = e.deltaY < 0 ? 1 : -1;
+    var newScale = Math.max(0.05, Math.min(5, targetScale * Math.pow(zoomFactor, direction)));
+    if (zoomAnchorX === null || zoomAnchorY === null) {
+      var rect = viewport.getBoundingClientRect();
+      zoomAnchorX = e.clientX - rect.left;
+      zoomAnchorY = e.clientY - rect.top;
+    }
+    clearTimeout(zoomAnchorTimeout);
+    zoomAnchorTimeout = setTimeout(function() { zoomAnchorX = null; zoomAnchorY = null; }, 200);
+    var ratio = newScale / targetScale;
+    targetPanX = zoomAnchorX - ratio * (zoomAnchorX - targetPanX);
+    targetPanY = zoomAnchorY - ratio * (zoomAnchorY - targetPanY);
+    targetScale = newScale;
+    if (!isAnimating) {
+      isAnimating = true;
+      requestAnimationFrame(animateZoom);
+    }
+  }, { passive: false });
+
+  // Touch pan & pinch zoom
+  var lastTouches = null;
+  viewport.addEventListener('touchstart', function(e) {
+    isMomentumActive = false;
+    if (e.touches.length === 1) {
+      isDragging = true;
+      dragStartX = e.touches[0].clientX;
+      dragStartY = e.touches[0].clientY;
+      panStartX = panX;
+      panStartY = panY;
+      lastMoveTime = performance.now();
+      velocityX = 0;
+      velocityY = 0;
+    }
+    lastTouches = Array.from(e.touches);
+  }, { passive: false });
+
+  viewport.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1 && isDragging) {
+      var now = performance.now();
+      var dt = now - lastMoveTime || 16;
+      var newPanX = panStartX + (e.touches[0].clientX - dragStartX);
+      var newPanY = panStartY + (e.touches[0].clientY - dragStartY);
+      velocityX = (newPanX - panX) / dt * 16;
+      velocityY = (newPanY - panY) / dt * 16;
+      lastMoveTime = now;
+      panX = newPanX;
+      panY = newPanY;
+      targetPanX = panX;
+      targetPanY = panY;
+      applyTransform();
+    } else if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
+      var prevDist = Math.hypot(
+        lastTouches[0].clientX - lastTouches[1].clientX,
+        lastTouches[0].clientY - lastTouches[1].clientY
+      );
+      var curDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      var r = curDist / prevDist;
+      var ns = Math.max(0.05, Math.min(5, scale * r));
+      var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      var rect = viewport.getBoundingClientRect();
+      var mx = midX - rect.left;
+      var my = midY - rect.top;
+      var rat = ns / scale;
+      panX = mx - rat * (mx - panX);
+      panY = my - rat * (my - panY);
+      scale = ns;
+      targetScale = scale;
+      targetPanX = panX;
+      targetPanY = panY;
+      applyTransform();
+    }
+    lastTouches = Array.from(e.touches);
+  }, { passive: false });
+
+  viewport.addEventListener('touchend', function() {
+    if (isDragging) startMomentum();
+    isDragging = false;
+    lastTouches = null;
+  });
+}
+</script>
 </body>
 </html>

@@ -10,16 +10,14 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 -960 960 960"><path fill="%235C4F3D" d="M512-40q-82 0-154-37.5T240-182L63-442q-7-10-5.5-21.5T67-483q20-21 49.5-24t53.5 14l110 76v-383q0-17 11.5-28.5T320-840q17 0 28.5 11.5T360-800v460q0 24-21.5 35.5T297-307l-85-59 95 138q35 51 89 79.5T512-120q103 0 175.5-72.5T760-368v-392q0-17 11.5-28.5T800-800q17 0 28.5 11.5T840-760v392q0 137-95.5 232.5T512-40Zm-32-880q17 0 28.5 11.5T520-880v360q0 17-11.5 28.5T480-480q-17 0-28.5-11.5T440-520v-360q0-17 11.5-28.5T480-920Zm160 40q17 0 28.5 11.5T680-840v320q0 17-11.5 28.5T640-480q-17 0-28.5-11.5T600-520v-320q0-17 11.5-28.5T640-880ZM486-300Z"/></svg>') 12 8, grab;
+  cursor: grab;
   position: relative;
   background-color: #F5F0E8;
   background-image: radial-gradient(circle, #D4C9B8 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
-#viewport.dragging {
-  cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 -960 960 960"><path fill="%233D3425" d="M402-40q-30 0-56-13.5T303-92L48-465l24-23q19-19 45-22t47 12l116 81v-383q0-17 11.5-28.5T320-840q17 0 28.5 11.5T360-800v537L212-367l157 229q5 8 14 13t19 5h278q33 0 56.5-23.5T760-200v-560q0-17 11.5-28.5T800-800q17 0 28.5 11.5T840-760v560q0 66-47 113T680-40H402Zm38-440v-400q0-17 11.5-28.5T480-920q17 0 28.5 11.5T520-880v400h-80Zm160 0v-360q0-17 11.5-28.5T640-880q17 0 28.5 11.5T680-840v360h-80ZM486-300Z"/></svg>') 12 12, grabbing;
-}
+#viewport.dragging { cursor: grabbing; }
 
 #canvas-world {
   position: absolute;
@@ -87,6 +85,8 @@ body {
 .canvas-text {
   position: absolute;
   color: #3D3425;
+  display: flex;
+  align-items: center;
 }
 
 .canvas-text h1 {
@@ -96,32 +96,117 @@ body {
   white-space: nowrap;
 }
 
-/* Fit-all button */
-#fit-all-btn {
+.canvas-text-bordered {
+  background: rgba(255, 252, 245, 0.7);
+  border: 1.5px solid #D4C9B8;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.canvas-text p {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.canvas-text a {
+  color: #5C4F3D;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.canvas-text a:hover {
+  color: #3D3425;
+}
+
+/* Landing page */
+.landing-container {
+  width: 640px;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.landing-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3D3425;
+  letter-spacing: -0.5px;
+  margin-bottom: 2rem;
+}
+
+#pages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.page-card {
+  display: block;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 252, 245, 0.7);
+  border: 1.5px solid #D4C9B8;
+  border-radius: 10px;
+  color: #3D3425;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.page-card:hover {
+  background: rgba(255, 252, 245, 1);
+  border-color: #C4B9A8;
+}
+
+/* Navigation buttons */
+#nav-buttons {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+}
+
+#nav-buttons button {
   width: 40px;
   height: 40px;
   border: 1.5px solid #D4C9B8;
-  border-radius: 8px;
+  border-radius: 10px;
   background: rgba(255, 252, 245, 0.85);
-  backdrop-filter: blur(6px);
+  color: #5C4F3D;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5C4F3D;
-  transition: background 0.2s, border-color 0.2s;
+  padding: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-#fit-all-btn:hover {
-  background: rgba(210, 195, 170, 0.45);
-  border-color: #B0A590;
+#nav-buttons button:hover {
+  background: rgba(255, 252, 245, 1);
+  border-color: #C4B9A8;
 }
 
-#fit-all-btn svg {
-  width: 20px;
-  height: 20px;
+#nav-buttons button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Make everything unselectable */
+html, body, * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+::selection {
+  background: transparent;
+  color: inherit;
 }
