@@ -293,18 +293,21 @@ function initLanding() {
     var h = viewport.clientHeight;
     ctx.clearRect(0, 0, w, h);
     var spacing = DOT_BASE_SPACING * scale;
-    if (spacing > 6) {
+    var FADE_LOW = 18;
+    var FADE_HIGH = 22;
+    if (spacing > FADE_LOW) {
       var offsetX = ((panX % spacing) + spacing) % spacing;
       var offsetY = ((panY % spacing) + spacing) % spacing;
       var cols = Math.ceil(w / spacing) + 2;
       var rows = Math.ceil(h / spacing) + 2;
       var rSq = RIPPLE_RADIUS * RIPPLE_RADIUS;
-      ctx.fillStyle = '#D4C9B8';
+      var alpha = spacing >= FADE_HIGH ? 1 : (spacing - FADE_LOW) / (FADE_HIGH - FADE_LOW);
+      ctx.fillStyle = 'rgba(212, 201, 184, ' + alpha + ')';
+      ctx.beginPath();
       for (var i = -1; i <= cols; i++) {
         for (var j = -1; j <= rows; j++) {
           var x = offsetX + i * spacing;
           var y = offsetY + j * spacing;
-          var dotR = 1;
           if (mouseActive) {
             var dx = x - mouseX;
             var dy = y - mouseY;
@@ -315,14 +318,16 @@ function initLanding() {
               var factor = 1 - t * t;
               x += (dx / dist) * RIPPLE_STRENGTH * factor;
               y += (dy / dist) * RIPPLE_STRENGTH * factor;
-              dotR = 1 + 1.5 * factor;
+              var dotR = 1 + 1.5 * factor;
+              ctx.moveTo(x + dotR, y);
+              ctx.arc(x, y, dotR, 0, Math.PI * 2);
+              continue;
             }
           }
-          ctx.beginPath();
-          ctx.arc(x, y, dotR, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.rect(x - 1, y - 1, 2, 2);
         }
       }
+      ctx.fill();
     }
     requestAnimationFrame(drawDots);
   }
