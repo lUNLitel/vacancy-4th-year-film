@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:fonts.gstatic.com)"
+      "WebFetch(domain:fonts.gstatic.com)",
+      "Bash(git mv:*)",
+      "Bash(node build.js:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd canvas-based dot background with mouse ripple effect\n\nReplace CSS radial-gradient dot pattern with a canvas renderer\nthat animates dots rippling away from the cursor on hover.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

@@ -8,6 +8,7 @@
 </head>
 <body>
 <div id="viewport">
+  <canvas id="dot-canvas"></canvas>
   <div id="canvas-world">
     <div class="landing-container">
       <h1 class="landing-title">Vacancy</h1>
@@ -64,14 +65,6 @@ function initLanding() {
 
   function applyTransform() {
     world.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
-    const spacing = DOT_BASE_SPACING * scale;
-    if (spacing > 6) {
-      viewport.style.backgroundImage = 'radial-gradient(circle, #D4C9B8 1px, transparent 1px)';
-      viewport.style.backgroundSize = spacing + 'px ' + spacing + 'px';
-      viewport.style.backgroundPosition = (panX % spacing) + 'px ' + (panY % spacing) + 'px';
-    } else {
-      viewport.style.backgroundImage = 'none';
-    }
   }
 
   function centerContent() {
@@ -267,6 +260,73 @@ function initLanding() {
     isDragging = false;
     lastTouches = null;
   });
+
+  // Dot canvas with ripple effect
+  var dotCanvas = document.getElementById('dot-canvas');
+  var ctx = dotCanvas.getContext('2d');
+  var mouseX = -9999, mouseY = -9999, mouseActive = false;
+  var RIPPLE_RADIUS = 150;
+  var RIPPLE_STRENGTH = 12;
+
+  function resizeDotCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    dotCanvas.width = viewport.clientWidth * dpr;
+    dotCanvas.height = viewport.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resizeDotCanvas();
+  window.addEventListener('resize', resizeDotCanvas);
+
+  viewport.addEventListener('mousemove', function(e) {
+    var rect = viewport.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
+    mouseActive = true;
+  });
+
+  viewport.addEventListener('mouseleave', function() {
+    mouseActive = false;
+  });
+
+  function drawDots() {
+    var w = viewport.clientWidth;
+    var h = viewport.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    var spacing = DOT_BASE_SPACING * scale;
+    if (spacing > 6) {
+      var offsetX = ((panX % spacing) + spacing) % spacing;
+      var offsetY = ((panY % spacing) + spacing) % spacing;
+      var cols = Math.ceil(w / spacing) + 2;
+      var rows = Math.ceil(h / spacing) + 2;
+      var rSq = RIPPLE_RADIUS * RIPPLE_RADIUS;
+      ctx.fillStyle = '#D4C9B8';
+      for (var i = -1; i <= cols; i++) {
+        for (var j = -1; j <= rows; j++) {
+          var x = offsetX + i * spacing;
+          var y = offsetY + j * spacing;
+          var dotR = 1;
+          if (mouseActive) {
+            var dx = x - mouseX;
+            var dy = y - mouseY;
+            var dSq = dx * dx + dy * dy;
+            if (dSq < rSq && dSq > 0.01) {
+              var dist = Math.sqrt(dSq);
+              var t = dist / RIPPLE_RADIUS;
+              var factor = 1 - t * t;
+              x += (dx / dist) * RIPPLE_STRENGTH * factor;
+              y += (dy / dist) * RIPPLE_STRENGTH * factor;
+              dotR = 1 + 1.5 * factor;
+            }
+          }
+          ctx.beginPath();
+          ctx.arc(x, y, dotR, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+    requestAnimationFrame(drawDots);
+  }
+  drawDots();
 }
 </script>
 </body>
