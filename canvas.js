@@ -149,26 +149,60 @@ async function init() {
           });
         }
       } else {
-        const p = document.createElement('p');
-        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-        let lastIndex = 0;
-        let match;
-        while ((match = linkRegex.exec(node.text)) !== null) {
-          if (match.index > lastIndex) {
-            p.appendChild(document.createTextNode(node.text.slice(lastIndex, match.index)));
+        const content = document.createElement('div');
+        content.className = 'md-content';
+
+        function renderInline(str, el) {
+          const tokenRegex = /\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]]+)\]\(([^)]+)\)/g;
+          let last = 0, m;
+          while ((m = tokenRegex.exec(str)) !== null) {
+            if (m.index > last) el.appendChild(document.createTextNode(str.slice(last, m.index)));
+            if (m[1] !== undefined) {
+              const s = document.createElement('strong'); s.textContent = m[1]; el.appendChild(s);
+            } else if (m[2] !== undefined) {
+              const e = document.createElement('em'); e.textContent = m[2]; el.appendChild(e);
+            } else {
+              const a = document.createElement('a');
+              a.href = m[4]; a.textContent = m[3]; a.target = '_blank'; a.rel = 'noopener';
+              el.appendChild(a);
+            }
+            last = tokenRegex.lastIndex;
           }
-          const a = document.createElement('a');
-          a.href = match[2];
-          a.textContent = match[1];
-          a.target = '_blank';
-          a.rel = 'noopener';
-          p.appendChild(a);
-          lastIndex = linkRegex.lastIndex;
+          if (last < str.length) el.appendChild(document.createTextNode(str.slice(last)));
         }
-        if (lastIndex < node.text.length) {
-          p.appendChild(document.createTextNode(node.text.slice(lastIndex)));
+
+        let currentList = null;
+        let currentP = null;
+        function flushBlock() {
+          if (currentP)    { content.appendChild(currentP); currentP = null; }
+          if (currentList) { content.appendChild(currentList); currentList = null; }
         }
-        el.appendChild(p);
+
+        for (const line of node.text.split('\n')) {
+          const hMatch   = line.match(/^(#{1,6})\s+(.*)/);
+          const liMatch  = line.match(/^[-*]\s+(.*)/);
+          if (hMatch) {
+            flushBlock();
+            const h = document.createElement('h' + hMatch[1].length);
+            renderInline(hMatch[2], h);
+            content.appendChild(h);
+          } else if (liMatch) {
+            if (currentP) { content.appendChild(currentP); currentP = null; }
+            if (!currentList) currentList = document.createElement('ul');
+            const li = document.createElement('li');
+            renderInline(liMatch[1], li);
+            currentList.appendChild(li);
+          } else if (line.trim() === '') {
+            flushBlock();
+          } else {
+            if (currentList) { content.appendChild(currentList); currentList = null; }
+            if (!currentP) currentP = document.createElement('p');
+            else currentP.appendChild(document.createTextNode('\n'));
+            renderInline(line, currentP);
+          }
+        }
+        flushBlock();
+        el.appendChild(content);
         el.addEventListener('click', function(e) {
           if (!el.classList.contains('scroll-active')) {
             el.classList.add('scroll-active');
