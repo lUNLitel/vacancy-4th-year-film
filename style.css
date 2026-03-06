@@ -94,6 +94,15 @@ body {
   color: #3D3425;
   display: flex;
   align-items: center;
+  overflow: hidden;
+}
+
+.canvas-text.scroll-active {
+  display: block;
+  overflow-y: auto;
+  cursor: auto;
+  outline: 2px solid rgba(92, 79, 61, 0.25);
+  outline-offset: -2px;
 }
 
 .canvas-text h1 {
@@ -113,6 +122,7 @@ body {
 .canvas-text p {
   font-size: 15px;
   line-height: 1.4;
+  white-space: pre-wrap;
 }
 
 .canvas-text a {
@@ -125,6 +135,40 @@ body {
 
 .canvas-text a:hover {
   color: #3D3425;
+}
+
+.canvas-youtube {
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #000;
+}
+
+.canvas-youtube img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.canvas-youtube:hover img {
+  opacity: 1;
+}
+
+.yt-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  transition: transform 0.15s ease;
+}
+
+.canvas-youtube:hover .yt-play-btn {
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 /* Landing page */

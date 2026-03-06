@@ -43,11 +43,12 @@ function slugify(name) {
 async function init() {
   const params = new URLSearchParams(window.location.search);
   const canvasName = params.get('canvas') || DEFAULT_CANVAS;
-  const canvasUrl = encodeURI(canvasName + '.canvas');
+  const canvasUrl = encodeURI('canvas/' + canvasName + '.canvas');
   const mediaDir = 'media/' + slugify(canvasName) + '/';
 
   // Fetch and parse the canvas file
   let nodes;
+  let edges = [];
   try {
     const response = await fetch(canvasUrl);
     if (!response.ok) {
@@ -55,6 +56,7 @@ async function init() {
     }
     const raw = await response.json();
     nodes = transformCanvasData(raw);
+    edges = raw.edges || [];
   } catch (err) {
     document.getElementById('canvas-world').innerHTML =
       '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;' +
@@ -118,11 +120,35 @@ async function init() {
       if (node.styleAttributes.border !== 'invisible') {
         el.classList.add('canvas-text-bordered');
       }
-      const headingMatch = node.text.match(/^(#{1,6})\s+(.*)/);
+      const headingMatch = !node.text.includes('\n') && node.text.match(/^(#{1,6})\s+(.*)/);
       if (headingMatch) {
         const h = document.createElement('h' + headingMatch[1].length);
         h.textContent = headingMatch[2];
         el.appendChild(h);
+      } else if (/^\s*<iframe\b/i.test(node.text)) {
+        el.classList.add('canvas-youtube');
+        const srcMatch = node.text.match(/src=["']([^"']+)["']/i);
+        if (srcMatch) {
+          const ytMatch = srcMatch[1].match(/(?:embed\/|v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+          const videoId = ytMatch ? ytMatch[1] : null;
+          const watchUrl = videoId
+            ? 'https://www.youtube.com/watch?v=' + videoId
+            : srcMatch[1];
+          const thumb = document.createElement('img');
+          thumb.src = videoId
+            ? 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg'
+            : '';
+          thumb.alt = 'YouTube video';
+          thumb.draggable = false;
+          const btn = document.createElement('div');
+          btn.className = 'yt-play-btn';
+          btn.innerHTML = '<svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.5 7.7A8.5 8.5 0 0 0 60.7 2C55.4.5 34 .5 34 .5S12.6.5 7.3 2A8.5 8.5 0 0 0 1.5 7.7C0 13 0 24 0 24s0 11 1.5 16.3A8.5 8.5 0 0 0 7.3 46C12.6 47.5 34 47.5 34 47.5s21.4 0 26.7-1.5a8.5 8.5 0 0 0 5.8-5.7C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#ff0000"/><path d="M27 34l18-10-18-10v20z" fill="#fff"/></svg>';
+          el.appendChild(thumb);
+          el.appendChild(btn);
+          el.addEventListener('click', function() {
+            window.open(watchUrl, '_blank', 'noopener');
+          });
+        }
       } else {
         const p = document.createElement('p');
         const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
@@ -144,6 +170,18 @@ async function init() {
           p.appendChild(document.createTextNode(node.text.slice(lastIndex)));
         }
         el.appendChild(p);
+        el.addEventListener('click', function(e) {
+          if (!el.classList.contains('scroll-active')) {
+            el.classList.add('scroll-active');
+          }
+          e.stopPropagation();
+        });
+        el.addEventListener('mousedown', function(e) {
+          if (el.classList.contains('scroll-active')) e.stopPropagation();
+        });
+        el.addEventListener('wheel', function(e) {
+          if (el.classList.contains('scroll-active')) e.stopPropagation();
+        }, { passive: true });
       }
     }
 
@@ -155,6 +193,89 @@ async function init() {
 
     world.appendChild(el);
   });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.canvas-text')) {
+      document.querySelectorAll('.canvas-text.scroll-active').forEach(function(el) {
+        el.classList.remove('scroll-active');
+      });
+    }
+  });
+
+  // === Edge / arrow rendering ===
+  if (edges.length > 0) {
+    const nodeMap = {};
+    for (const n of nodes) nodeMap[n.id] = n;
+
+    const pad = 200;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of nodes) {
+      if (n.x < minX) minX = n.x;
+      if (n.y < minY) minY = n.y;
+      if ((n.x + n.width) > maxX) maxX = n.x + n.width;
+      if ((n.y + n.height) > maxY) maxY = n.y + n.height;
+    }
+
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    const svgW = maxX - minX + pad * 2;
+    const svgH = maxY - minY + pad * 2;
+    svg.setAttribute('viewBox', `${minX - pad} ${minY - pad} ${svgW} ${svgH}`);
+    svg.style.cssText = `position:absolute;left:${minX - pad}px;top:${minY - pad}px;width:${svgW}px;height:${svgH}px;pointer-events:none;z-index:0;overflow:visible;`;
+
+    const defs = document.createElementNS(svgNS, 'defs');
+    const marker = document.createElementNS(svgNS, 'marker');
+    marker.setAttribute('id', 'arrow');
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '6');
+    marker.setAttribute('refX', '7');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('orient', 'auto');
+    const arrowPoly = document.createElementNS(svgNS, 'polygon');
+    arrowPoly.setAttribute('points', '0 0, 8 3, 0 6');
+    arrowPoly.setAttribute('fill', '#C4B9A8');
+    marker.appendChild(arrowPoly);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    function connPt(n, side) {
+      if (side === 'top')    return { x: n.x + n.width / 2, y: n.y };
+      if (side === 'bottom') return { x: n.x + n.width / 2, y: n.y + n.height };
+      if (side === 'left')   return { x: n.x,               y: n.y + n.height / 2 };
+      if (side === 'right')  return { x: n.x + n.width,     y: n.y + n.height / 2 };
+      return { x: n.x + n.width / 2, y: n.y + n.height / 2 };
+    }
+
+    function ctrlOffset(side, s) {
+      if (side === 'top')    return { x: 0,  y: -s };
+      if (side === 'bottom') return { x: 0,  y:  s };
+      if (side === 'left')   return { x: -s, y: 0 };
+      if (side === 'right')  return { x:  s, y: 0 };
+      return { x: 0, y: 0 };
+    }
+
+    for (const edge of edges) {
+      const fn = nodeMap[edge.fromNode];
+      const tn = nodeMap[edge.toNode];
+      if (!fn || !tn) continue;
+
+      const from = connPt(fn, edge.fromSide);
+      const to   = connPt(tn, edge.toSide);
+      const s    = Math.max(60, Math.hypot(to.x - from.x, to.y - from.y) * 0.4);
+      const fc   = ctrlOffset(edge.fromSide, s);
+      const tc   = ctrlOffset(edge.toSide, s);
+
+      const path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', `M ${from.x} ${from.y} C ${from.x + fc.x} ${from.y + fc.y}, ${to.x + tc.x} ${to.y + tc.y}, ${to.x} ${to.y}`);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', '#C4B9A8');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('marker-end', 'url(#arrow)');
+      svg.appendChild(path);
+    }
+
+    world.insertBefore(svg, world.firstChild);
+  }
 
   // === Progressive image loading ===
   let loadQueue = [];

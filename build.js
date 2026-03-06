@@ -4,6 +4,7 @@ const path = require('path');
 // === Configuration ===
 const VAULT_IMAGE_DIR = String.raw`C:\Users\ryanw\Sync\notebook\z Hidden\z hidden images`;
 const VAULT_PREFIX = 'z Hidden/z hidden images/'; // prefix used inside .canvas files
+const CANVAS_DIR = path.join(__dirname, 'canvas');
 const MEDIA_DIR = path.join(__dirname, 'media');
 const PAGES_FILE = path.join(__dirname, 'pages.json');
 
@@ -11,15 +12,10 @@ function slugify(name) {
   return name.toLowerCase().replace(/\s+/g, '-');
 }
 
-function extractTitle(raw) {
-  const textNode = raw.nodes.find(n => n.type === 'text');
-  if (textNode) return textNode.text.replace(/^#+\s*/, '');
-  return null;
-}
 
 function run() {
-  // Auto-discover all .canvas files in the project directory
-  const canvasFiles = fs.readdirSync(__dirname)
+  // Auto-discover all .canvas files in the canvas/ directory
+  const canvasFiles = fs.readdirSync(CANVAS_DIR)
     .filter(f => f.endsWith('.canvas'))
     .map(f => f.slice(0, -7)); // strip .canvas extension
 
@@ -40,16 +36,15 @@ function run() {
   const pages = [];
 
   for (const canvasName of canvasFiles) {
-    const canvasFile = path.join(__dirname, canvasName + '.canvas');
+    const canvasFile = path.join(CANVAS_DIR, canvasName + '.canvas');
     const slug = slugify(canvasName);
     const destDir = path.join(MEDIA_DIR, slug);
 
     // Parse canvas
     const raw = JSON.parse(fs.readFileSync(canvasFile, 'utf-8'));
-    const title = extractTitle(raw) || canvasName;
-    pages.push({ canvas: canvasName, title });
+    pages.push({ canvas: canvasName, title: canvasName });
 
-    console.log(`\n--- ${title} (${canvasName}.canvas) ---`);
+    console.log(`\n--- ${canvasName}.canvas ---`);
 
     const fileNodes = raw.nodes.filter(n => n.type === 'file');
 
