@@ -68,8 +68,7 @@ async function init() {
   }
 
   // Set page title from first heading text node (if any)
-  const titleNode = nodes.find(n => n.type === 'text' && /^#{1,6}\s/.test(n.text));
-  if (titleNode) document.title = titleNode.text.replace(/^#{1,6}\s+/, '');
+  document.title = canvasName;
 
   // === Determine parent groups ===
   const groups = nodes.filter(n => n.type === 'group');
