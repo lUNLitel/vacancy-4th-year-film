@@ -209,6 +209,11 @@ async function init() {
           }
           e.stopPropagation();
         });
+        el.addEventListener('touchstart', function() {
+          if (!el.classList.contains('scroll-active')) {
+            el.classList.add('scroll-active');
+          }
+        }, { passive: true });
         el.addEventListener('mousedown', function(e) {
           if (el.classList.contains('scroll-active')) e.stopPropagation();
         });
@@ -547,7 +552,10 @@ async function init() {
 
   // Touch pan & pinch zoom
   let lastTouches = null;
+  let touchInScrollBox = false;
   viewport.addEventListener('touchstart', (e) => {
+    touchInScrollBox = !!e.target.closest('.scroll-active');
+    if (touchInScrollBox) return;
     isMomentumActive = false;
     if (e.touches.length === 1) {
       isDragging = true;
@@ -563,6 +571,7 @@ async function init() {
   }, { passive: false });
 
   viewport.addEventListener('touchmove', (e) => {
+    if (touchInScrollBox) return;
     e.preventDefault();
     if (e.touches.length === 1 && isDragging) {
       const now = performance.now();
@@ -608,6 +617,7 @@ async function init() {
   }, { passive: false });
 
   viewport.addEventListener('touchend', () => {
+    touchInScrollBox = false;
     if (isDragging) startMomentum();
     isDragging = false;
     lastTouches = null;
