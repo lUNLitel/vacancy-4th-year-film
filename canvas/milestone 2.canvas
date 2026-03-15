@@ -1,0 +1,137 @@
+{
+	"nodes":[
+		{"id":"723318f25121635e","type":"group","x":-940,"y":-1160,"width":1460,"height":1173,"label":"modeling thoughts and updates"},
+		{"id":"70491c2d703f6df1","type":"group","x":620,"y":-824,"width":600,"height":502,"label":"Lighting Update"},
+		{"id":"0576ff04c276e7ee","type":"group","x":620,"y":-252,"width":720,"height":265,"label":"VFX update"},
+		{"id":"52707a92ad4dc389","type":"group","x":620,"y":-1160,"width":283,"height":247,"label":"animation updates"},
+		{"id":"595c3a8cbb97a40b","type":"file","file":"z Hidden/z hidden images/Pasted image 20260314234445.png","x":-540,"y":-340,"width":400,"height":333},
+		{"id":"4266c8f1460ea3fe","type":"file","file":"z Hidden/z hidden images/Pasted image 20260314234548.png","x":-120,"y":-340,"width":400,"height":238},
+		{
+			"id":"af784f38c716022e",
+			"type":"text",
+			"text":"# Ryan's Milestone 2",
+			"styleAttributes":{"border":"invisible"},
+			"x":-940,
+			"y":-1300,
+			"width":380,
+			"height":80
+		},
+		{
+			"id":"cd772935d96b9d14",
+			"type":"text",
+			"text":"most  of the model will be in a style similar to this",
+			"styleAttributes":{},
+			"x":-860,
+			"y":-340,
+			"width":260,
+			"height":110
+		},
+		{
+			"id":"3f9ae53cf9308997",
+			"type":"text",
+			"text":"I have tried to use assets, but many of them either  have very broken topology or the style does not fit.\n\nI think the main issue is that our spaceship model is too stylized, or have a strong accent, so I'm trying to create furniture's that fit the overall ascetics.\n\nI understand this as a hard task because of the tine constraint, but I think it is the only way for a passable look.",
+			"styleAttributes":{},
+			"x":-540,
+			"y":-820,
+			"width":360,
+			"height":420
+		},
+		{"id":"148b8c6e63449f63","type":"file","file":"z Hidden/z hidden images/629ef06cc4e56250804813e9f0d220b3.jpg","x":-120,"y":-820,"width":240,"height":427},
+		{
+			"id":"06e07df316ba87ca",
+			"type":"text",
+			"text":"I think assets will still be used, but will only be used for smaller props and filler objects, large furniture still needs to be hand modeled.",
+			"styleAttributes":{},
+			"x":180,
+			"y":-810,
+			"width":260,
+			"height":200
+		},
+		{
+			"id":"132ca5b09c582c35",
+			"type":"text",
+			"text":"here is the style reference I chose in the end, most of the detail will be done with textures.",
+			"styleAttributes":{},
+			"x":-120,
+			"y":-1120,
+			"width":240,
+			"height":240
+		},
+		{
+			"id":"8ce741036f1becea",
+			"type":"text",
+			"text":"[Shot 000](https://syncsketch.com/sketch/fQ6tUgbVn8hL/?offlineMode=1#/42048583/43825916/f_0)",
+			"styleAttributes":{},
+			"x":640,
+			"y":-1140,
+			"width":243,
+			"height":80
+		},
+		{
+			"id":"589640eacce136ba",
+			"type":"text",
+			"text":"[Shot 010](https://syncsketch.com/sketch/s7pO23CY9owO/?offlineMode=1#/42048766/43826102/f_82)",
+			"styleAttributes":{},
+			"x":640,
+			"y":-1040,
+			"width":243,
+			"height":70
+		},
+		{"id":"a76def9c91ff73ae","type":"file","file":"z Hidden/z hidden images/Pasted image 20260314235726.jpg","x":640,"y":-806,"width":400,"height":225},
+		{
+			"id":"430d8f892dfb5d3f",
+			"type":"text",
+			"text":"We are working on the texturing of the character in collaboration with Gabriella. ",
+			"styleAttributes":{},
+			"x":940,
+			"y":-544,
+			"width":260,
+			"height":140
+		},
+		{
+			"id":"b11a74ae23defe5a",
+			"type":"text",
+			"text":"We were going for a cartoon style lighting, but due to time constraint, we are switching to a semi realistic lighting.",
+			"styleAttributes":{},
+			"x":640,
+			"y":-544,
+			"width":260,
+			"height":200
+		},
+		{"id":"2d1c591b9437dd30","type":"file","file":"z Hidden/z hidden images/render_1.webp","x":640,"y":-233,"width":400,"height":225},
+		{
+			"id":"39427d8d68e17a76",
+			"type":"text",
+			"text":"Updated texture and model for the title.",
+			"styleAttributes":{},
+			"x":1060,
+			"y":-232,
+			"width":260,
+			"height":100
+		}
+	],
+	"edges":[
+		{
+			"id":"a80836976cde5979",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"cd772935d96b9d14",
+			"fromSide":"bottom",
+			"toNode":"595c3a8cbb97a40b",
+			"toSide":"left"
+		},
+		{
+			"id":"993714fd6f274994",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"132ca5b09c582c35",
+			"fromSide":"bottom",
+			"toNode":"148b8c6e63449f63",
+			"toSide":"top"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{}
+	}
+}
