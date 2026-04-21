@@ -30,6 +30,8 @@ function transformCanvasData(raw) {
     } else if (node.type === 'text') {
       base.text = node.text;
       base.styleAttributes = node.styleAttributes || {};
+    } else if (node.type === 'link') {
+      base.url = node.url;
     }
 
     return base;
@@ -93,6 +95,7 @@ async function init() {
     ...nodes.filter(n => n.type === 'group' && !parentGroupIds.has(n.id)),
     ...nodes.filter(n => n.type === 'file'),
     ...nodes.filter(n => n.type === 'text'),
+    ...nodes.filter(n => n.type === 'link'),
   ];
 
   sorted.forEach((node, i) => {
@@ -221,6 +224,22 @@ async function init() {
           if (el.classList.contains('scroll-active')) e.stopPropagation();
         }, { passive: true });
       }
+    } else if (node.type === 'link') {
+      el.className = 'canvas-text canvas-youtube';
+      const ytMatch = node.url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+      const videoId = ytMatch ? ytMatch[1] : null;
+      const thumb = document.createElement('img');
+      thumb.src = videoId ? 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg' : '';
+      thumb.alt = 'YouTube video';
+      thumb.draggable = false;
+      const btn = document.createElement('div');
+      btn.className = 'yt-play-btn';
+      btn.innerHTML = '<svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.5 7.7A8.5 8.5 0 0 0 60.7 2C55.4.5 34 .5 34 .5S12.6.5 7.3 2A8.5 8.5 0 0 0 1.5 7.7C0 13 0 24 0 24s0 11 1.5 16.3A8.5 8.5 0 0 0 7.3 46C12.6 47.5 34 47.5 34 47.5s21.4 0 26.7-1.5a8.5 8.5 0 0 0 5.8-5.7C68 35 68 24 68 24s0-11-1.5-16.3z" fill="#ff0000"/><path d="M27 34l18-10-18-10v20z" fill="#fff"/></svg>';
+      el.appendChild(thumb);
+      el.appendChild(btn);
+      el.addEventListener('click', function() {
+        window.open(node.url, '_blank', 'noopener');
+      });
     }
 
     el.style.left = node.x + 'px';
@@ -527,6 +546,17 @@ async function init() {
 
     e.preventDefault();
     isMomentumActive = false;
+
+    if (e.deltaX !== 0 && Math.abs(e.deltaX) >= Math.abs(e.deltaY)) {
+      targetPanX -= e.deltaX;
+      targetPanY -= e.deltaY;
+      if (!isAnimating) {
+        isAnimating = true;
+        requestAnimationFrame(animateZoom);
+      }
+      return;
+    }
+
     const zoomFactor = 1.08;
     const direction = e.deltaY < 0 ? 1 : -1;
     const newScale = Math.max(0.05, Math.min(5, targetScale * Math.pow(zoomFactor, direction)));

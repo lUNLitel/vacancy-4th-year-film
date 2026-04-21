@@ -1,0 +1,155 @@
+{
+	"nodes":[
+		{"id":"f982a23601412f7e","type":"group","x":-280,"y":-480,"width":1940,"height":900,"label":"Film Progress"},
+		{"id":"c3ed6bc9b1c78b32","type":"group","x":980,"y":-360,"width":640,"height":720,"label":"Lighting Renders"},
+		{"id":"05539796bf01b51e","type":"group","x":-680,"y":-480,"width":340,"height":550,"label":"poster"},
+		{
+			"id":"8c03b79a4f5c51a6",
+			"type":"text",
+			"text":"### Vacancy  Sound Designed (1st Draft)",
+			"styleAttributes":{"border":"invisible"},
+			"x":-260,
+			"y":-460,
+			"width":500,
+			"height":60
+		},
+		{
+			"id":"07dd7b718b4cd11e",
+			"type":"text",
+			"text":"### Extra shots for credit screens",
+			"styleAttributes":{"border":"invisible"},
+			"x":-260,
+			"y":40,
+			"width":400,
+			"height":60
+		},
+		{
+			"id":"6440f2a794c163a3",
+			"type":"text",
+			"text":"We were able to have VFX done for 2 shots, and both were rendered. We are in the process of rendering more shots, and I'm adding some credit screen renders.\nI also added sound effects and music to the video.\n\nIn this version contains all the newest playblasts and renders, some playblasts contains black frames, but this shouldn't be an issue once it is rendered\n\nleft to do:\n- render remaining scenes\n- match sound to the rendered scenes (if there is a mis match)\n- trailer",
+			"styleAttributes":{},
+			"x":440,
+			"y":-360,
+			"width":500,
+			"height":506
+		},
+		{"id":"62cc0080f4397182","type":"link","url":"https://youtu.be/z-A8B67g1dg","x":-240,"y":-360,"width":640,"height":360},
+		{"id":"7d7589a3cf00abfc","type":"file","file":"z Hidden/z hidden images/020.webp","x":1060,"y":-234,"width":400,"height":168},
+		{"id":"6346c345ad038297","type":"file","file":"z Hidden/z hidden images/060.webp","x":1060,"y":-44,"width":400,"height":168},
+		{"id":"0d8a30a21ad15417","type":"file","file":"z Hidden/z hidden images/130.webp","x":1060,"y":146,"width":400,"height":168},
+		{
+			"id":"f22741c467979dcb",
+			"type":"text",
+			"text":"Render test for lightings on shot 020, 060, and 130.",
+			"styleAttributes":{},
+			"x":1060,
+			"y":-340,
+			"width":260,
+			"height":80
+		},
+		{
+			"id":"ecf8ed2b7a218ab8",
+			"type":"text",
+			"text":"020",
+			"styleAttributes":{},
+			"x":1500,
+			"y":-180,
+			"width":80,
+			"height":60
+		},
+		{
+			"id":"17b2ac3485c0713b",
+			"type":"text",
+			"text":"060",
+			"styleAttributes":{},
+			"x":1500,
+			"y":10,
+			"width":80,
+			"height":60
+		},
+		{
+			"id":"3f83751f16d210f4",
+			"type":"text",
+			"text":"130",
+			"styleAttributes":{},
+			"x":1500,
+			"y":200,
+			"width":80,
+			"height":60
+		},
+		{"id":"b99b4fa19f8392bb","type":"file","file":"z Hidden/z hidden images/poster_01_v04_web.jpg","x":-640,"y":-360,"width":259,"height":400},
+		{
+			"id":"bdd718d163ae72a0",
+			"type":"text",
+			"text":"### Movie poster",
+			"styleAttributes":{"border":"invisible"},
+			"x":-660,
+			"y":-460,
+			"width":260,
+			"height":60
+		},
+		{"id":"66e17dc87e61d362","type":"file","file":"z Hidden/z hidden images/Pasted image 20260420230706.png","x":-240,"y":120,"width":575,"height":240},
+		{
+			"id":"991f5f5b46666c5c",
+			"type":"text",
+			"text":"# Milestone 3",
+			"styleAttributes":{"border":"invisible"},
+			"x":-680,
+			"y":-620,
+			"width":260,
+			"height":60
+		},
+		{
+			"id":"fb1a5ab0576ce500",
+			"type":"text",
+			"text":"There will be another render that is coming out later",
+			"styleAttributes":{},
+			"x":420,
+			"y":240,
+			"width":260,
+			"height":100
+		}
+	],
+	"edges":[
+		{
+			"id":"072d4a2409283268",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"66e17dc87e61d362",
+			"fromSide":"right",
+			"toNode":"fb1a5ab0576ce500",
+			"toSide":"left"
+		},
+		{
+			"id":"c64aafb3420a280a",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"ecf8ed2b7a218ab8",
+			"fromSide":"left",
+			"toNode":"7d7589a3cf00abfc",
+			"toSide":"right"
+		},
+		{
+			"id":"93ec1b1e769e1b15",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"17b2ac3485c0713b",
+			"fromSide":"left",
+			"toNode":"6346c345ad038297",
+			"toSide":"right"
+		},
+		{
+			"id":"a2adb62ea10a201d",
+			"styleAttributes":{},
+			"toFloating":false,
+			"fromNode":"3f83751f16d210f4",
+			"fromSide":"left",
+			"toNode":"0d8a30a21ad15417",
+			"toSide":"right"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{}
+	}
+}
